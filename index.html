@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JW LIBRARY - Advanced Light Edition</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <link href="https://webfontworld.github.io/kopub/KoPubWorldBatang.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-user-select: none; user-select: none; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #e0e0e0; color: #111111; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        #app-container { width: 100%; max-width: 480px; height: 100vh; background-color: #f3f3f4; display: flex; flex-direction: column; position: relative; box-shadow: 0 4px 25px rgba(0,0,0,0.1); overflow: hidden; }
+        .top-bar { height: 56px; background-color: #e6e6e6; color: #111111; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; z-index: 10; border-bottom: 1px solid #dcdcdc; }
+        .top-bar .left-menu { display: flex; align-items: center; overflow: hidden; }
+        .top-bar .right-menu { display: flex; align-items: center; position: relative; }
+        .icon-btn { background: none; border: none; color: #555555; padding: 8px; cursor: pointer; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .more-menu-dropdown { display: none; position: absolute; top: 50px; right: 4px; background-color: #ffffff; border: 1px solid #dcdcdc; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 100; min-width: 180px; }
+        .more-menu-dropdown.active { display: block; }
+        .menu-item { padding: 14px 16px; font-size: 14px; color: #333333; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .menu-item:hover { background-color: #f5f5f5; }
+        .menu-item .material-icons-outlined { font-size: 18px; color: #555555; }
+        .title-container { display: flex; flex-direction: column; margin-left: 12px; overflow: hidden; white-space: nowrap; }
+        .top-bar .title { font-size: 19px; font-weight: 500; color: #111111; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .top-bar .subtitle { font-size: 13px; color: #666666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: -2px; }
+        .screen { display: none; flex: 1; flex-direction: column; overflow-y: auto; }
+        .screen.active { display: flex; }
+        .sub-tab-bar { display: flex; background-color: #ffffff; border-bottom: 1px solid #dcdcdc; flex-shrink: 0; }
+        .sub-tab { flex: 1; text-align: center; padding: 14px 0; font-size: 13px; font-weight: bold; color: #555555; cursor: pointer; }
+        .sub-tab.active { color: #4a3764; border-bottom: 3px solid #4a3764; }
+        .section-header { padding: 16px 16px 8px 16px; font-size: 15px; font-weight: bold; color: #222222; background-color: #f3f3f4; flex-shrink: 0; }
+        .grid-6col { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; padding: 0 12px 12px 12px; background-color: #f3f3f4; flex-shrink: 0; }
+        .grid-btn { background-color: #3b3543; border: none; color: #ffffff; height: 60px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .grid-btn.greek-color { background-color: #4b4454; }
+        .grid-btn.light-purple { background-color: #6c6375; }
+        .grid-chapter { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; padding: 2px; background-color: #f3f3f4; }
+        .chapter-btn { background-color: #757575; border: none; color: #ffffff; height: 64px; font-size: 19px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .chapter-btn.has-bookmark { background-color: #4a3764 !important; font-weight: bold; }
+        #reader-screen { background-color: #ffffff; position: relative; }
+        .reader-content { padding: 24px 20px 80px 20px; transition: transform 0.2s cubic-bezier(0.1, 0.8, 0.3, 1); }
+        .verse-paragraph { font-family: 'Georgia', serif; font-size: 19.5px; line-height: 1.5; color: #111111; text-align: justify; word-break: break-all; }
+        .korean-serif .verse-inline { font-family: 'KoPubWorldBatang', serif; font-size: 15px; font-weight: 500; line-height: 1.7; }
+        .korean-serif .verse-number-inline { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .verse-inline { display: inline; padding: 1px 2px; border-radius: 4px; cursor: pointer; }
+        .verse-inline.bookmarked { background-color: #fff59d; border-bottom: 2px solid #fbc02d; }
+        .verse-number-inline { color: #3a6cb6; font-weight: bold; margin-left: 6px; margin-right: 6px; font-size: 16px; display: inline-block; }
+        .gesture-indicator { position: absolute; left: 0; width: 100%; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #888888; background-color: rgba(240, 240, 240, 0.8); opacity: 0; transition: opacity 0.2s; z-index: 5; }
+        #top-indicator { top: 0; }
+        #bottom-indicator { bottom: 56px; }
+        .bottom-nav { height: 56px; border-top: 1px solid #dcdcdc; background-color: #e6e6e6; display: flex; justify-content: space-around; align-items: center; z-index: 10; flex-shrink: 0; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #555555; background: none; border: none; cursor: pointer; }
+        .nav-item .material-icons-outlined { font-size: 22px; margin-bottom: 2px; }
+        .nav-item span:not(.material-icons-outlined) { font-size: 11px; font-weight: 500; }
+        .nav-item.active { color: #4a3764; }
+        #file-input { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <header class="top-bar">
+            <div class="left-menu">
+                <button class="icon-btn" id="back-btn"><span class="material-icons-outlined" id="back-icon">menu</span></button>
+                <div class="title-container">
+                    <span class="title" id="nav-title">New World Translation</span>
+                    <span class="subtitle" id="nav-subtitle">English</span>
+                </div>
+            </div>
+            <div class="right-menu">
+                <button class="icon-btn"><span class="material-icons-outlined">search</span></button>
+                <button class="icon-btn"><span class="material-icons-outlined">bookmark_border</span></button>
+                <button class="icon-btn" id="more-menu-btn"><span class="material-icons-outlined">more_vert</span></button>
+                
+                <div class="more-menu-dropdown" id="more-dropdown">
+                    <div class="menu-item" id="menu-reupload">
+                        <span class="material-icons-outlined">find_replace</span>
+                        <span>로컬 파일 수동 업로드</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="screen active" id="books-screen">
+            <div class="sub-tab-bar">
+                <div class="sub-tab">INTRODUCTION</div>
+                <div class="sub-tab active">BOOKS</div>
+                <div class="sub-tab">INDEX</div>
+                <div class="sub-tab">APPENDICES</div>
+            </div>
+            
+            <div class="section-header">HEBREW-ARAMAIC SCRIPTURES</div>
+            <div class="grid-6col" id="hebrew-grid"></div>
+
+            <div class="section-header">CHRISTIAN GREEK SCRIPTURES</div>
+            <div class="grid-6col" id="greek-grid"></div>
+        </div>
+
+        <div class="screen" id="chapters-screen">
+            <div class="grid-chapter" id="chapters-grid-container"></div>
+        </div>
+
+        <div class="screen" id="reader-screen">
+            <div id="top-indicator" class="gesture-indicator">이전 장으로 이동하려면 더 당기세요</div>
+            <div class="reader-content" id="reader-content-area"></div>
+            <div id="bottom-indicator" class="gesture-indicator">다음 장으로 이동하려면 더 당기세요</div>
+        </div>
+
+        <input type="file" id="file-input" accept=".txt">
+
+        <nav class="bottom-nav">
+            <button class="nav-item"><span class="material-icons-outlined">home</span><span>홈</span></button>
+            <button class="nav-item active" id="nav-bible-tab"><span class="material-icons-outlined">menu_book</span><span>성경</span></button>
+            <button class="nav-item"><span class="material-icons-outlined">library_books</span><span>라이브러리</span></button>
+            <button class="nav-item"><span class="material-icons-outlined">group</span><span>집회</span></button>
+            <button class="nav-item"><span class="material-icons-outlined">diamond</span><span>개인 연구</span></button>
+        </nav>
+
+    </div>
+
+    <script>
+        const CLOUD_BASE_URL = "https://raw.githubusercontent.com/username/repo/main/bible_texts/";
+        const memoryCache = {};
+
+        const hebrewBooks = [
+            { id: "Ge", ko: "창세기", en: "Genesis", c: 1 }, { id: "Ex", ko: "출애굽기", en: "Exodus", c: 1 },
+            { id: "Le", ko: "레위기", en: "Leviticus", c: 1 }, { id: "Nu", ko: "민수기", en: "Numbers", c: 1 },
+            { id: "De", ko: "신명기", en: "Deuteronomy", c: 1 }, { id: "Jos", ko: "여호수아", en: "Joshua", c: 2 },
+            { id: "Jg", ko: "사사기", en: "Judges", c: 2 }, { id: "Ru", ko: "루기", en: "Ruth", c: 2 },
+            { id: "1Sa", ko: "사무엘상", en: "1 Samuel", c: 2 }, { id: "2Sa", ko: "사무엘하", en: "2 Samuel", c: 2 },
+            { id: "1Ki", ko: "열왕기상", en: "1 Kings", c: 2 }, { id: "2Ki", ko: "열왕기하", en: "2 Kings", c: 2 },
+            { id: "1Ch", ko: "역대기상", en: "1 Chronicles", c: 2 }, { id: "2Ch", ko: "역대기하", en: "2 Chronicles", c: 2 },
+            { id: "Ezr", ko: "에스라", en: "Ezra", c: 2 }, { id: "Ne", ko: "느헤미야", en: "Nehemiah", c: 2 },
+            { id: "Es", ko: "에스더", en: "Esther", c: 2 }, { id: "Job", ko: "욥기", en: "Job", c: 2 },
+            { id: "Ps", ko: "시편", en: "Psalms", c: 2 }, { id: "Pr", ko: "잠언", en: "Proverbs", c: 2 },
+            { id: "Ec", ko: "전도서", en: "Ecclesiastes", c: 2 }, { id: "Ca", ko: "아가", en: "Song of Solomon", c: 2 },
+            { id: "Isa", ko: "이사야", en: "Isaiah", c: 1 }, { id: "Jer", ko: "예레미야", en: "Jeremiah", c: 1 },
+            { id: "La", ko: "예레미야 애가", en: "Lamentations", c: 1 }, { id: "Eze", ko: "에스겔", en: "Ezekiel", c: 1 },
+            { id: "Da", ko: "다니엘", en: "Daniel", c: 1 }, { id: "Ho", ko: "호세아", en: "Hosea", c: 1 },
+            { id: "Joe", ko: "요엘", en: "Joel", c: 2 }, { id: "Am", ko: "아모스", en: "Amos", c: 2 },
+            { id: "Ob", ko: "오바디야", en: "Obadiah", c: 1 }, { id: "Jon", ko: "요나", en: "Jonah", c: 2 },
+            { id: "Mic", ko: "미가", en: "Micah", c: 2 }, { id: "Na", ko: "나훔", en: "Nahum", c: 2 },
+            { id: "Hab", ko: "하박국", en: "Habakkuk", c: 2 }, { id: "Zep", ko: "스바냐", en: "Zephaniah", c: 2 },
+            { id: "Hag", ko: "학개", en: "Haggai", c: 2 }, { id: "Zec", ko: "스가랴", en: "Zechariah", c: 2 },
+            { id: "Mal", ko: "말라기", en: "Malachi", c: 1 }
+        ];
+
+        const greekBooks = [
+            { id: "Mt", ko: "마태복음", en: "Matthew", c: 1 }, { id: "Mr", ko: "마가복음", en: "Mark", c: 1 },
+            { id: "Lu", ko: "누가복음", en: "Luke", c: 1 }, { id: "Joh", ko: "요한복음", en: "John", c: 1 },
+            { id: "Ac", ko: "사도행전", en: "Acts", c: 2 }, { id: "Ro", ko: "로마서", en: "Romans", c: 2 },
+            { id: "1Co", ko: "고린도전서", en: "1 Corinthians", c: 2 }, { id: "2Co", ko: "고린도후서", en: "2 Corinthians", c: 2 },
+            { id: "Ga", ko: "갈라디아서", en: "Galatians", c: 2 }, { id: "Eph", ko: "에베소서", en: "Ephesians", c: 2 },
+            { id: "Php", ko: "빌립보서", en: "Philippians", c: 2 }, { id: "Col", ko: "골로새서", en: "Colossians", c: 2 },
+            { id: "1Th", ko: "데살로니가전서", en: "1 Thessalonians", c: 2 }, { id: "2Th", ko: "데살로니가후서", en: "2 Thessalonians", c: 2 },
+            { id: "1Ti", ko: "디모데전서", en: "1 Timothy", c: 2 }, { id: "2Ti", ko: "디모데후서", en: "2 Timothy", c: 2 },
+            { id: "Tit", ko: "디도서", en: "Titus", c: 2 }, { id: "Phm", ko: "빌레몬서", en: "Philemon", c: 2 },
+            { id: "Heb", ko: "히브리서", en: "Hebrews", c: 2 }, { id: "Jas", ko: "야고보서", en: "James", c: 2 },
+            { id: "1Pe", ko: "베드로전서", en: "1 Peter", c: 2 }, { id: "2Pe", ko: "베드로후서", en: "2 Peter", c: 2 },
+            { id: "1Jo", ko: "요한1서", en: "1 John", c: 2 }, { id: "2Jo", ko: "요한2서", en: "2 John", c: 2 },
+            { id: "3Jo", ko: "요한3서", en: "3 John", c: 2 }, { id: "Jude", ko: "유다서", en: "Jude", c: 2 },
+            { id: "Re", ko: "요한계시록", en: "Revelation", c: 1 }
+        ];
+
+        let currentScreen = "books"; 
+        let globalSelectedBook = null; 
+        let currentActiveChapter = 1;
+
+        function buildBookGrids() {
+            setupGrid(document.getElementById('hebrew-grid'), hebrewBooks, false);
+            setupGrid(document.getElementById('greek-grid'), greekBooks, true);
+        }
+
+        function setupGrid(container, bookList, isGreek) {
+            container.innerHTML = '';
+            bookList.forEach(book => {
+                const btn = document.createElement('button');
+                btn.className = 'grid-btn';
+                btn.textContent = book.id;
+                
+                if (isGreek) btn.classList.add('greek-color');
+                if (book.c === 2) btn.classList.add('light-purple');
+
+                btn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    globalSelectedBook = book; 
+                    
+                    if (memoryCache[book.id]) {
+                        openChaptersScreen(book);
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(`${CLOUD_BASE_URL}${book.id}.txt`);
+                        if (response.ok) {
+                            const text = await response.text();
+                            parseAndBuildStructure(book.id, text, false); 
+                            openChaptersScreen(book);
+                        } else {
+                            document.getElementById('file-input').click(); 
+                        }
+                    } catch (error) {
+                        document.getElementById('file-input').click();
+                    }
+                });
+                container.appendChild(btn);
+            });
+        }
+
+        document.getElementById('file-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file || !globalSelectedBook) return;
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const text = evt.target.result;
+                parseAndBuildStructure(globalSelectedBook.id, text, true);
+                openChaptersScreen(globalSelectedBook);
+                e.target.value = ''; 
+            };
+            reader.readAsText(file, 'UTF-8');
+        });
+
+        // 📌 의도하신 가짜(Mock) 분할 로직으로 원복 완료
+        function parseAndBuildStructure(bookId, rawText, saveToLocal = false) {
+            const lines = rawText.split('\n').map(l => l.trim()).filter(l => l !== '');
+            const parsedStructure = [];
+            
+            // 한글 유무 감지는 유지 (동적 폰트 적용용)
+            const sampleText = rawText.substring(0, 1000);
+            const isKorean = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/.test(sampleText);
+
+            let lineIndex = 0;
+            let chapterNum = 1;
+
+            while (lineIndex < lines.length) {
+                const randomLimit = Math.floor(Math.random() * (40 - 15 + 1)) + 15;
+                const chapterVerses = [];
+                for (let i = 0; i < randomLimit && lineIndex < lines.length; i++) {
+                    chapterVerses.push(lines[lineIndex]);
+                    lineIndex++;
+                }
+                parsedStructure.push({ chapter: chapterNum, verses: chapterVerses });
+                chapterNum++;
+            }
+
+            // 메모리에 무제한 저장
+            memoryCache[bookId] = { isKorean: isKorean, data: parsedStructure };
+
+            // 수동 업로드 시 로컬 스토리지 시도
+            if (saveToLocal) {
+                try {
+                    localStorage.setItem(`jw_lang_${bookId}`, isKorean);
+                    localStorage.setItem(`jw_struct_${bookId}`, JSON.stringify(parsedStructure));
+                } catch (e) {
+                    console.warn("로컬 스토리지 5MB 한계 초과. 현재 세션 메모리에만 유지됩니다.");
+                }
+            }
+        }
+
+        function getBookData(bookId) {
+            if (memoryCache[bookId]) return memoryCache[bookId].data;
+            const localData = localStorage.getItem(`jw_struct_${bookId}`);
+            return localData ? JSON.parse(localData) : null;
+        }
+
+        function getBookLang(bookId) {
+            if (memoryCache[bookId]) return memoryCache[bookId].isKorean;
+            return localStorage.getItem(`jw_lang_${bookId}`) === 'true';
+        }
+
+        function openChaptersScreen(book) {
+            currentScreen = "chapters";
+            globalSelectedBook = book; 
+            switchScreen('chapters-screen');
+            
+            document.getElementById('nav-title').textContent = book.en; 
+            document.getElementById('nav-subtitle').textContent = "New World Translation";
+            document.getElementById('back-icon').textContent = "arrow_back";
+
+            const container = document.getElementById('chapters-grid-container');
+            container.innerHTML = '';
+
+            const structData = getBookData(book.id);
+            if (!structData) return;
+
+            const savedBookmarkChapter = localStorage.getItem(`jw_mark_ch_${book.id}`);
+
+            structData.forEach(ch => {
+                const btn = document.createElement('button');
+                btn.className = 'chapter-btn';
+                btn.textContent = ch.chapter;
+
+                if (savedBookmarkChapter && savedBookmarkChapter == ch.chapter) {
+                    btn.classList.add('has-bookmark');
+                }
+
+                btn.onclick = () => {
+                    openReaderScreen(book, ch.chapter);
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function openReaderScreen(book, chapterNum) {
+            currentScreen = "reader";
+            currentActiveChapter = chapterNum;
+            switchScreen('reader-screen');
+
+            document.getElementById('nav-title').textContent = book.en; 
+            document.getElementById('nav-subtitle').textContent = "New World Translation";
+
+            const container = document.getElementById('reader-content-area');
+            container.innerHTML = '';
+
+            const isKorean = getBookLang(book.id);
+            if (isKorean) {
+                container.classList.add('korean-serif');
+            } else {
+                container.classList.remove('korean-serif');
+            }
+
+            const structData = getBookData(book.id);
+            if (!structData) return;
+
+            const currentChData = structData.find(c => c.chapter == chapterNum);
+            if (!currentChData) return;
+
+            const p = document.createElement('p');
+            p.className = 'verse-paragraph';
+
+            currentChData.verses.forEach((verseText, index) => {
+                if (!verseText) return; 
+                const verseNum = index + 1;
+                const spanContainer = document.createElement('span');
+                spanContainer.className = 'verse-inline';
+                spanContainer.setAttribute('id', `v-${book.id}-${chapterNum}-${verseNum}`);
+
+                const savedVerse = localStorage.getItem(`jw_mark_vs_${book.id}`);
+                const savedCh = localStorage.getItem(`jw_mark_ch_${book.id}`);
+                if (savedCh == chapterNum && savedVerse == verseNum) {
+                    spanContainer.classList.add('bookmarked');
+                }
+
+                spanContainer.innerHTML = `<span class="verse-number-inline">${verseNum}</span>${verseText}`;
+                bindLongPress(spanContainer, book.id, chapterNum, verseNum);
+                p.appendChild(spanContainer);
+            });
+
+            container.appendChild(p);
+            setupPullToPageGestures(); 
+            document.getElementById('reader-screen').scrollTop = 0;
+        }
+
+        function setupPullToPageGestures() {
+            const readerScreen = document.getElementById('reader-screen');
+            const contentArea = document.getElementById('reader-content-area');
+            const topIndicator = document.getElementById('top-indicator');
+            const bottomIndicator = document.getElementById('bottom-indicator');
+
+            let startY = 0, currentY = 0;
+            let isTopOut = false, isBottomOut = false;
+            const threshold = 75; 
+
+            readerScreen.ontouchstart = (e) => {
+                startY = e.touches[0].pageY;
+                isTopOut = (readerScreen.scrollTop <= 0);
+                isBottomOut = (readerScreen.scrollTop + readerScreen.clientHeight >= readerScreen.scrollHeight - 2);
+            };
+
+            readerScreen.ontouchmove = (e) => {
+                currentY = e.touches[0].pageY;
+                const deltaY = currentY - startY;
+
+                if (isTopOut && deltaY > 0) {
+                    e.preventDefault();
+                    contentArea.style.transform = `translateY(${Math.min(deltaY * 0.4, threshold + 20)}px)`;
+                    topIndicator.style.opacity = deltaY > threshold ? "1" : "0.4";
+                }
+                else if (isBottomOut && deltaY < 0) {
+                    e.preventDefault();
+                    contentArea.style.transform = `translateY(${Math.max(deltaY * 0.4, -(threshold + 20))}px)`;
+                    bottomIndicator.style.opacity = Math.abs(deltaY) > threshold ? "1" : "0.4";
+                }
+            };
+
+            readerScreen.ontouchend = (e) => {
+                const deltaY = currentY - startY;
+                contentArea.style.transform = "translateY(0px)";
+                topIndicator.style.opacity = "0";
+                bottomIndicator.style.opacity = "0";
+
+                const structData = getBookData(globalSelectedBook.id);
+                if (!structData) return;
+
+                if (isTopOut && deltaY > threshold && currentActiveChapter > 1) {
+                    openReaderScreen(globalSelectedBook, currentActiveChapter - 1);
+                    setTimeout(() => { readerScreen.scrollTop = readerScreen.scrollHeight; }, 30);
+                }
+                else if (isBottomOut && deltaY < -threshold && currentActiveChapter < structData.length) {
+                    openReaderScreen(globalSelectedBook, currentActiveChapter + 1);
+                }
+                startY = 0; currentY = 0;
+            };
+        }
+
+        function bindLongPress(element, bookId, chNum, vsNum) {
+            let timer;
+            const trigger = () => {
+                timer = setTimeout(() => {
+                    if (confirm(`📌 [${chNum}장 ${vsNum}절] 구절을 북마크에 등록할까요?`)) {
+                        document.querySelectorAll('.verse-inline.bookmarked').forEach(el => el.classList.remove('bookmarked'));
+                        element.classList.add('bookmarked');
+                        localStorage.setItem(`jw_mark_ch_${bookId}`, chNum);
+                        localStorage.setItem(`jw_mark_vs_${bookId}`, vsNum);
+                    }
+                }, 800);
+            };
+            const stop = () => clearTimeout(timer);
+            element.addEventListener('mousedown', trigger);
+            element.addEventListener('mouseup', stop);
+            element.addEventListener('mouseleave', stop);
+            element.addEventListener('touchstart', trigger);
+            element.addEventListener('touchend', stop);
+        }
+
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        document.getElementById('back-btn').addEventListener('click', () => {
+            if (currentScreen === "reader") openChaptersScreen(globalSelectedBook);
+            else if (currentScreen === "chapters") resetToMainBooks();
+        });
+
+        document.getElementById('nav-bible-tab').addEventListener('click', resetToMainBooks);
+
+        function resetToMainBooks() {
+            currentScreen = "books";
+            switchScreen('books-screen');
+            document.getElementById('nav-title').textContent = "New World Translation";
+            document.getElementById('nav-subtitle').textContent = "English";
+            document.getElementById('back-icon').textContent = "menu";
+        }
+
+        const moreMenuBtn = document.getElementById('more-menu-btn');
+        const moreDropdown = document.getElementById('more-dropdown');
+
+        moreMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (globalSelectedBook && (currentScreen === 'chapters' || currentScreen === 'reader')) {
+                moreDropdown.classList.toggle('active');
+            } else {
+                alert("파일을 관리할 책 안으로 먼저 진입해 주세요.");
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!moreDropdown.contains(e.target) && !moreMenuBtn.contains(e.target)) {
+                moreDropdown.classList.remove('active');
+            }
+        });
+
+        document.getElementById('menu-reupload').addEventListener('click', () => {
+            moreDropdown.classList.remove('active');
+            document.getElementById('file-input').click(); 
+        });
+
+        buildBookGrids();
+    </script>
+</body>
+</html>
