@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JW LIBRARY - Advanced Light Edition</title>
+    
+    <!-- PWA 메타 태그 및 런처 설정 -->
+    <meta name="theme-color" content="#e6e6e6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="JW Light">
+    
+    <!-- Inline 데이터 URI 형태의 Web Manifest (PWA 기본 요건 충족) -->
+    <link rel="manifest" href='data:application/manifest+json,{"name":"JW LIBRARY - Advanced Light Edition","short_name":"JW Light","start_url":".","display":"standalone","background_color":"#f3f3f4","theme_color":"#e6e6e6","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/3389/3389081.png","sizes":"512x512","type":"image/png"}]}'>
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3389/3389081.png">
+
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link href="https://webfontworld.github.io/kopub/KoPubWorldBatang.css" rel="stylesheet">
     <style>
@@ -219,12 +230,10 @@
             reader.readAsText(file, 'UTF-8');
         });
 
-        // 📌 의도하신 가짜(Mock) 분할 로직으로 원복 완료
         function parseAndBuildStructure(bookId, rawText, saveToLocal = false) {
             const lines = rawText.split('\n').map(l => l.trim()).filter(l => l !== '');
             const parsedStructure = [];
             
-            // 한글 유무 감지는 유지 (동적 폰트 적용용)
             const sampleText = rawText.substring(0, 1000);
             const isKorean = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/.test(sampleText);
 
@@ -242,16 +251,14 @@
                 chapterNum++;
             }
 
-            // 메모리에 무제한 저장
             memoryCache[bookId] = { isKorean: isKorean, data: parsedStructure };
 
-            // 수동 업로드 시 로컬 스토리지 시도
             if (saveToLocal) {
                 try {
                     localStorage.setItem(`jw_lang_${bookId}`, isKorean);
                     localStorage.setItem(`jw_struct_${bookId}`, JSON.stringify(parsedStructure));
                 } catch (e) {
-                    console.warn("로컬 스토리지 5MB 한계 초과. 현재 세션 메모리에만 유지됩니다.");
+                    console.warn("로컬 스토리지 한계 초과. 메모리 세션에 저장됨.");
                 }
             }
         }
@@ -305,7 +312,11 @@
             currentActiveChapter = chapterNum;
             switchScreen('reader-screen');
 
-            document.getElementById('nav-title').textContent = book.en; 
+            // 📌 [사양 변경] 본문 진입 및 장 변경 시 상단바 타이틀에 전체 성경책 목록 중 랜덤으로 영어 이름 표시
+            const allBooks = [...hebrewBooks, ...greekBooks];
+            const randomPick = allBooks[Math.floor(Math.random() * allBooks.length)];
+            document.getElementById('nav-title').textContent = `${randomPick.en} ${chapterNum}`; 
+            
             document.getElementById('nav-subtitle').textContent = "New World Translation";
 
             const container = document.getElementById('reader-content-area');
@@ -466,6 +477,15 @@
         });
 
         buildBookGrids();
+
+        // 📌 PWA 기능을 작동시키기 위한 서비스 워커 등록 스크립트 추가
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker 등록 성공!'))
+                    .catch(err => console.log('Service Worker 등록 실패:', err));
+            });
+        }
     </script>
 </body>
 </html>
