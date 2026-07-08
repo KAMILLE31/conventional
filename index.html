@@ -3,17 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JW LIBRARY - Advanced Light Edition</title>
+    <title>JW LIBRARY</title>
     
-    <!-- PWA 메타 태그 및 런처 설정 -->
-    <meta name="theme-color" content="#e6e6e6">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+    <link rel="apple-touch-icon" href="/icon.svg">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="JW Light">
-    
-    <!-- Inline 데이터 URI 형태의 Web Manifest (PWA 기본 요건 충족) -->
-    <link rel="manifest" href='data:application/manifest+json,{"name":"JW LIBRARY - Advanced Light Edition","short_name":"JW Light","start_url":".","display":"standalone","background_color":"#f3f3f4","theme_color":"#e6e6e6","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/3389/3389081.png","sizes":"512x512","type":"image/png"}]}'>
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3389/3389081.png">
+    <meta name="theme-color" content="#613b8e">
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link href="https://webfontworld.github.io/kopub/KoPubWorldBatang.css" rel="stylesheet">
@@ -149,7 +146,7 @@
             { id: "Joe", ko: "요엘", en: "Joel", c: 2 }, { id: "Am", ko: "아모스", en: "Amos", c: 2 },
             { id: "Ob", ko: "오바디야", en: "Obadiah", c: 1 }, { id: "Jon", ko: "요나", en: "Jonah", c: 2 },
             { id: "Mic", ko: "미가", en: "Micah", c: 2 }, { id: "Na", ko: "나훔", en: "Nahum", c: 2 },
-            { id: "Hab", ko: "하박국", en: "Habakkuk", c: 2 }, { id: "Zep", ko: "스바냐", en: "Zephaniah", c: 2 },
+            { id: "Hab", ko: "하박국", en: "Habakkuk", c: 2 }, { id: "Zep", ko: "스바냐", en: "Zechariah", c: 2 },
             { id: "Hag", ko: "학개", en: "Haggai", c: 2 }, { id: "Zec", ko: "스가랴", en: "Zechariah", c: 2 },
             { id: "Mal", ko: "말라기", en: "Malachi", c: 1 }
         ];
@@ -258,7 +255,7 @@
                     localStorage.setItem(`jw_lang_${bookId}`, isKorean);
                     localStorage.setItem(`jw_struct_${bookId}`, JSON.stringify(parsedStructure));
                 } catch (e) {
-                    console.warn("로컬 스토리지 한계 초과. 메모리 세션에 저장됨.");
+                    console.warn("로컬 스토리지 5MB 한계 초과. 현재 세션 메모리에만 유지됩니다.");
                 }
             }
         }
@@ -312,11 +309,8 @@
             currentActiveChapter = chapterNum;
             switchScreen('reader-screen');
 
-            // 📌 [사양 변경] 본문 진입 및 장 변경 시 상단바 타이틀에 전체 성경책 목록 중 랜덤으로 영어 이름 표시
-            const allBooks = [...hebrewBooks, ...greekBooks];
-            const randomPick = allBooks[Math.floor(Math.random() * allBooks.length)];
-            document.getElementById('nav-title').textContent = `${randomPick.en} ${chapterNum}`; 
-            
+            // 📌 [수정] 상단바 타이틀에 장(숫자) 정보는 숨기고, 오직 성경 제목만 표출하도록 고정
+            document.getElementById('nav-title').textContent = book.en; 
             document.getElementById('nav-subtitle').textContent = "New World Translation";
 
             const container = document.getElementById('reader-content-area');
@@ -477,15 +471,6 @@
         });
 
         buildBookGrids();
-
-        // 📌 PWA 기능을 작동시키기 위한 서비스 워커 등록 스크립트 추가
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('Service Worker 등록 성공!'))
-                    .catch(err => console.log('Service Worker 등록 실패:', err));
-            });
-        }
     </script>
 </body>
 </html>
