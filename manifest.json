@@ -1,0 +1,17 @@
+{
+  "name": "JW LIBRARY",
+  "short_name": "JW LIBRARY",
+  "description": "JW LIBRARY Advanced Light Edition",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f3f3f4",
+  "theme_color": "#613b8e",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
