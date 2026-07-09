@@ -5,22 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>JW LIBRARY</title>
     
-    <!-- PWA 및 네이티브 앱 전환 (브라우저 아이콘/뱃지 제거용 메타 태그) -->
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/svg+xml" href="/icon.svg">
     <link class="apple-touch-icon" sizes="180x180" href="/icon.svg">
     
-    <!-- iOS 전용 웹앱 강제 (홈화면/멀티태스킹 창에서 순수 앱으로 표시) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="JW LIBRARY">
-    
-    <!-- Android/Chrome 홈화면 추가 대응 -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#613b8e">
 
-    <!-- 구글 머티리얼 아이콘만 유지 -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <link href="https://webfontworld.github.io/kopub/KoPubWorldBatang.css" rel="stylesheet">
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-user-select: none; user-select: none; }
@@ -63,24 +59,23 @@
         .reader-content { padding: 24px 20px 80px 20px; transition: transform 0.2s cubic-bezier(0.1, 0.8, 0.3, 1); }
         .verse-paragraph { font-family: 'Georgia', serif; font-size: 19.5px; line-height: 1.5; color: #111111; text-align: justify; word-break: break-all; }
         
-        /* 🛠 네트워크 차단 환경에서도 100% 작동하는 기기 내장형 시스템 명조체 셋업 */
+        /* 본문 한국어 고유 스타일 명조 복구 및 두께 강제 렌더링 최적화 */
         .korean-serif .verse-inline { 
-            font-family: 'Apple Myungjo', 'Apple 명조', 'NanumMyeongjo', '나눔명조', 'Batang', '바탕', serif; 
-            font-size: 18px; 
-            line-height: 1.5;
-            font-weight: 500; 
-            color: #222222;
+            font-family: 'KoPubWorld Batang', 'KoPubWorldBatang', 'KoPub 바탕', 'Apple Myungjo', serif !important; 
+            font-size: 18.5px; 
+            line-height: 1.6;
+            font-weight: 500 !important;
+            color: #1a1a1a;
             text-align: justify; 
             word-break: break-all;
             -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
             text-rendering: optimizeLegibility;
         }
         .korean-serif .verse-number-inline { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
         }
         
-        .verse-inline { display: inline; padding: 1px 2px; border-radius: 4px; cursor: pointer; }
+        .verse-inline { display: inline; padding: 2px 3px; border-radius: 4px; cursor: pointer; }
         .verse-inline.bookmarked { background-color: #fff59d; border-bottom: 2px solid #fbc02d; }
         .verse-number-inline { color: #3a6cb6; font-weight: bold; margin-left: 4px; margin-right: 6px; font-size: 15px; display: inline-block; vertical-align: baseline; }
         
@@ -110,8 +105,8 @@
                 </div>
             </div>
             <div class="right-menu">
-                <button class="icon-btn"><span class="material-icons-outlined">search</span></button>
-                <button class="icon-btn"><span class="material-icons-outlined">bookmark_border</span></button>
+                <button class="icon-btn" onclick="alert('돋보기 기능: 현재 성경 단어 및 구절 통합 검색 기능이 준비 중입니다.')"><span class="material-icons-outlined">search</span></button>
+                <button class="icon-btn" onclick="alert('북마크 목록 기능: 내가 저장한 성경 구절 전체 관리 탭이 준비 중입니다.')"><span class="material-icons-outlined">bookmark_border</span></button>
                 <button class="icon-btn" id="more-menu-btn"><span class="material-icons-outlined">more_vert</span></button>
                 
                 <div class="more-menu-dropdown" id="more-dropdown">
@@ -125,10 +120,10 @@
 
         <div class="screen active" id="books-screen">
             <div class="sub-tab-bar">
-                <div class="sub-tab">INTRODUCTION</div>
+                <div class="sub-tab" onclick="alert('소개(INTRODUCTION) 탭 기능이 준비 중입니다.')">INTRODUCTION</div>
                 <div class="sub-tab active">BOOKS</div>
-                <div class="sub-tab">INDEX</div>
-                <div class="sub-tab">APPENDICES</div>
+                <div class="sub-tab" onclick="alert('색인(INDEX) 검색 기능이 준비 중입니다.')">INDEX</div>
+                <div class="sub-tab" onclick="alert('부록(APPENDICES) 자료실 기능이 준비 중입니다.')">APPENDICES</div>
             </div>
             
             <div class="section-header">HEBREW-ARAMAIC SCRIPTURES</div>
@@ -151,11 +146,11 @@
         <input type="file" id="file-input" accept=".txt">
 
         <nav class="bottom-nav">
-            <button class="nav-item"><span class="material-icons-outlined">home</span><span>홈</span></button>
+            <button class="nav-item" onclick="alert('홈 화면 이동 기능이 준비 중입니다.')"><span class="material-icons-outlined">home</span><span>홈</span></button>
             <button class="nav-item active" id="nav-bible-tab"><span class="material-icons-outlined">menu_book</span><span>성경</span></button>
-            <button class="nav-item"><span class="material-icons-outlined">library_books</span><span>라이브러리</span></button>
-            <button class="nav-item"><span class="material-icons-outlined">group</span><span>집회</span></button>
-            <button class="nav-item"><span class="material-icons-outlined">diamond</span><span>개인 연구</span></button>
+            <button class="nav-item" onclick="alert('라이브러리(서적/잡지) 다운로드 기능이 준비 중입니다.')"><span class="material-icons-outlined">library_books</span><span>라이브러리</span></button>
+            <button class="nav-item" onclick="alert('집회 집회 프로그램 및 주간 스케줄 기능이 준비 중입니다.')"><span class="material-icons-outlined">group</span><span>집회</span></button>
+            <button class="nav-item" onclick="alert('개인 연구 노트 및 분석 기능이 준비 중입니다.')"><span class="material-icons-outlined">diamond</span><span>개인 연구</span></button>
         </nav>
 
     </div>
@@ -198,7 +193,7 @@
             { id: "1Ti", ko: "디모데전서", en: "1 Timothy", c: 2 }, { id: "2Ti", ko: "디모데후서", en: "2 Timothy", c: 2 },
             { id: "Tit", ko: "디도서", en: "Titus", c: 2 }, { id: "Phm", ko: "빌레몬서", en: "Philemon", c: 2 },
             { id: "Heb", ko: "히브리서", en: "Hebrews", c: 2 }, { id: "Jas", ko: "야고보서", en: "James", c: 2 },
-            { id: "1Pe", ko: "베드로전서", en: "1 Peter", c: 2 }, { id: "2Pe", ko: "베드로후서", en: "2 Death", c: 2 },
+            { id: "1Pe", ko: "베드로전서", en: "1 Peter", c: 2 }, { id: "2Pe", ko: "베드로후서", en: "2 Peter", c: 2 },
             { id: "1Jo", ko: "요한1서", en: "1 John", c: 2 }, { id: "2Jo", ko: "요한2서", en: "2 John", c: 2 },
             { id: "3Jo", ko: "요한3서", en: "3 John", c: 2 }, { id: "Jude", ko: "유다서", en: "Jude", c: 2 },
             { id: "Re", ko: "요한계시록", en: "Revelation", c: 1 }
@@ -207,6 +202,26 @@
         let currentScreen = "books"; 
         let globalSelectedBook = null; 
         let currentActiveChapter = 1;
+
+        // [핵심] 브라우저/스마트폰 디바이스 뒤로가기 핸들러 로직 장착
+        function initNavigationHistory() {
+            window.history.pushState({ screen: "books" }, "");
+            window.addEventListener("popstate", (event) => {
+                handleDeviceBack();
+            });
+        }
+
+        function handleDeviceBack() {
+            if (currentScreen === "reader") {
+                window.history.pushState({ screen: "chapters" }, ""); 
+                openChaptersScreen(globalSelectedBook);
+            } else if (currentScreen === "chapters") {
+                window.history.pushState({ screen: "books" }, "");
+                resetToMainBooks();
+            } else {
+                window.history.pushState({ screen: "books" }, "");
+            }
+        }
 
         function buildBookGrids() {
             setupGrid(document.getElementById('hebrew-grid'), hebrewBooks, false);
@@ -228,6 +243,7 @@
                     globalSelectedBook = book; 
                     
                     if (memoryCache[book.id]) {
+                        window.history.pushState({ screen: "chapters" }, "");
                         openChaptersScreen(book);
                         return;
                     }
@@ -237,6 +253,7 @@
                         if (response.ok) {
                             const text = await response.text();
                             parseAndBuildStructure(book.id, text, false); 
+                            window.history.pushState({ screen: "chapters" }, "");
                             openChaptersScreen(book);
                         } else {
                             document.getElementById('file-input').click(); 
@@ -257,6 +274,7 @@
             reader.onload = function(evt) {
                 const text = evt.target.result;
                 parseAndBuildStructure(globalSelectedBook.id, text, true);
+                window.history.pushState({ screen: "chapters" }, "");
                 openChaptersScreen(globalSelectedBook);
                 e.target.value = ''; 
             };
@@ -291,7 +309,7 @@
                     localStorage.setItem(`jw_lang_${bookId}`, isKorean);
                     localStorage.setItem(`jw_struct_${bookId}`, JSON.stringify(parsedStructure));
                 } catch (e) {
-                    console.warn("로컬 스토리지 5MB 한계 초과. 현재 세션 메모리에만 유지됩니다.");
+                    console.warn("로컬 저장 용량 초과. 세션 메모리에만 유지됩니다.");
                 }
             }
         }
@@ -335,6 +353,7 @@
                 }
 
                 btn.onclick = () => {
+                    window.history.pushState({ screen: "reader" }, "");
                     openReaderScreen(book, ch.chapter);
                 };
                 container.appendChild(btn);
@@ -506,6 +525,8 @@
             document.getElementById('file-input').click(); 
         });
 
+        // 초기화 함수 실행
+        initNavigationHistory();
         buildBookGrids();
     </script>
 </body>
