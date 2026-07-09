@@ -2,14 +2,18 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>JW LIBRARY</title>
     
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/svg+xml" href="/icon.svg">
-    <link rel="apple-touch-icon" href="/icon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icon.svg">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="JW LIBRARY">
+    
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#613b8e">
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
@@ -18,6 +22,8 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-user-select: none; user-select: none; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #e0e0e0; color: #111111; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         #app-container { width: 100%; max-width: 480px; height: 100vh; background-color: #f3f3f4; display: flex; flex-direction: column; position: relative; box-shadow: 0 4px 25px rgba(0,0,0,0.1); overflow: hidden; }
+        
+        /* 상단바 */
         .top-bar { height: 56px; background-color: #e6e6e6; color: #111111; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; z-index: 10; border-bottom: 1px solid #dcdcdc; }
         .top-bar .left-menu { display: flex; align-items: center; overflow: hidden; }
         .top-bar .right-menu { display: flex; align-items: center; position: relative; }
@@ -30,12 +36,16 @@
         .title-container { display: flex; flex-direction: column; margin-left: 12px; overflow: hidden; white-space: nowrap; }
         .top-bar .title { font-size: 19px; font-weight: 500; color: #111111; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .top-bar .subtitle { font-size: 13px; color: #666666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: -2px; }
+        
+        /* 화면 구성 */
         .screen { display: none; flex: 1; flex-direction: column; overflow-y: auto; }
         .screen.active { display: flex; }
         .sub-tab-bar { display: flex; background-color: #ffffff; border-bottom: 1px solid #dcdcdc; flex-shrink: 0; }
         .sub-tab { flex: 1; text-align: center; padding: 14px 0; font-size: 13px; font-weight: bold; color: #555555; cursor: pointer; }
         .sub-tab.active { color: #4a3764; border-bottom: 3px solid #4a3764; }
         .section-header { padding: 16px 16px 8px 16px; font-size: 15px; font-weight: bold; color: #222222; background-color: #f3f3f4; flex-shrink: 0; }
+        
+        /* 그리드 레이아웃 */
         .grid-6col { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; padding: 0 12px 12px 12px; background-color: #f3f3f4; flex-shrink: 0; }
         .grid-btn { background-color: #3b3543; border: none; color: #ffffff; height: 60px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .grid-btn.greek-color { background-color: #4b4454; }
@@ -43,17 +53,34 @@
         .grid-chapter { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; padding: 2px; background-color: #f3f3f4; }
         .chapter-btn { background-color: #757575; border: none; color: #ffffff; height: 64px; font-size: 19px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .chapter-btn.has-bookmark { background-color: #4a3764 !important; font-weight: bold; }
+        
+        /* 리더 스크린 & 본문 폰트 스타일 최적화 (사진 반영) */
         #reader-screen { background-color: #ffffff; position: relative; }
         .reader-content { padding: 24px 20px 80px 20px; transition: transform 0.2s cubic-bezier(0.1, 0.8, 0.3, 1); }
         .verse-paragraph { font-family: 'Georgia', serif; font-size: 19.5px; line-height: 1.5; color: #111111; text-align: justify; word-break: break-all; }
-        .korean-serif .verse-inline { font-family: 'KoPubWorldBatang', serif; font-size: 15px; font-weight: 500; line-height: 1.7; }
-        .korean-serif .verse-number-inline { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        
+        /* 5번 반영: 사진 속 정갈하고 균형 잡힌 한국어 본문 스타일 최적화 구문 */
+        .korean-serif .verse-inline { 
+            font-family: 'KoPubWorldBatang', 'KoPub 바탕', serif; 
+            font-size: 18.5px; 
+            font-weight: 400; 
+            line-height: 1.65; 
+            color: #222222;
+            letter-spacing: -0.02em;
+            word-break: keep-all; 
+        }
+        .korean-serif .verse-number-inline { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        
         .verse-inline { display: inline; padding: 1px 2px; border-radius: 4px; cursor: pointer; }
         .verse-inline.bookmarked { background-color: #fff59d; border-bottom: 2px solid #fbc02d; }
-        .verse-number-inline { color: #3a6cb6; font-weight: bold; margin-left: 6px; margin-right: 6px; font-size: 16px; display: inline-block; }
+        .verse-number-inline { color: #3a6cb6; font-weight: bold; margin-left: 4px; margin-right: 6px; font-size: 15px; display: inline-block; vertical-align: baseline; }
+        
+        /* 제스처 인디케이터 */
         .gesture-indicator { position: absolute; left: 0; width: 100%; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #888888; background-color: rgba(240, 240, 240, 0.8); opacity: 0; transition: opacity 0.2s; z-index: 5; }
         #top-indicator { top: 0; }
         #bottom-indicator { bottom: 56px; }
+        
+        /* 하단 탭바 */
         .bottom-nav { height: 56px; border-top: 1px solid #dcdcdc; background-color: #e6e6e6; display: flex; justify-content: space-around; align-items: center; z-index: 10; flex-shrink: 0; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #555555; background: none; border: none; cursor: pointer; }
         .nav-item .material-icons-outlined { font-size: 22px; margin-bottom: 2px; }
@@ -276,8 +303,10 @@
             globalSelectedBook = book; 
             switchScreen('chapters-screen');
             
-            document.getElementById('nav-title').textContent = book.en; 
-            document.getElementById('nav-subtitle').textContent = "New World Translation";
+            // 1번 반영: 서브타이틀 동적 변경 대응 적용
+            const isKorean = getBookLang(book.id);
+            document.getElementById('nav-title').textContent = isKorean ? book.ko : book.en; 
+            document.getElementById('nav-subtitle').textContent = isKorean ? "신세계역" : "New World Translation";
             document.getElementById('back-icon').textContent = "arrow_back";
 
             const container = document.getElementById('chapters-grid-container');
@@ -309,14 +338,14 @@
             currentActiveChapter = chapterNum;
             switchScreen('reader-screen');
 
-            // 📌 [수정] 상단바 타이틀에 장(숫자) 정보는 숨기고, 오직 성경 제목만 표출하도록 고정
-            document.getElementById('nav-title').textContent = book.en; 
-            document.getElementById('nav-subtitle').textContent = "New World Translation";
+            // 1번 반영: 본문에서도 한국어 파일 검사 후 서브타이틀 자동 동적 매핑 고정
+            const isKorean = getBookLang(book.id);
+            document.getElementById('nav-title').textContent = isKorean ? book.ko : book.en; 
+            document.getElementById('nav-subtitle').textContent = isKorean ? "신세계역" : "New World Translation";
 
             const container = document.getElementById('reader-content-area');
             container.innerHTML = '';
 
-            const isKorean = getBookLang(book.id);
             if (isKorean) {
                 container.classList.add('korean-serif');
             } else {
