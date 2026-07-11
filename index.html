@@ -494,38 +494,77 @@
             };
         }
 
-        // 팝업 없는 길게 누르기 북마크 로직
+        // 팝업 없는 길게 누르기 북마크 로직 (미세 떨림 보정 및 모바일 최적화)
         function bindLongPress(element, bookId, chNum, vsNum) {
             let timer;
-            let isDragging = false;
+            let startX = 0;
+            let startY = 0;
+            let isFired = false;
             
-            const trigger = () => {
-                isDragging = false;
+            const trigger = (e) => {
+                isFired = false;
+                
+                // 터치 시작 위치 좌표 저장
+                if (e.type === 'touchstart') {
+                    startX = e.touches[0].clientX;
+                    startY = e.touches[0].clientY;
+                } else if (e.type === 'mousedown') {
+                    startX = e.clientX;
+                    startY = e.clientY;
+                }
+                
                 timer = setTimeout(() => {
-                    if(!isDragging) {
-                        document.querySelectorAll('.verse-inline.bookmarked').forEach(el => el.classList.remove('bookmarked'));
-                        element.classList.add('bookmarked');
-                        localStorage.setItem(`jw_mark_ch_${bookId}`, chNum);
-                        localStorage.setItem(`jw_mark_vs_${bookId}`, vsNum);
-                        
-                        // 지원 기기에서 가벼운 햅틱 반응
-                        if (navigator.vibrate) navigator.vibrate(50);
-                    }
-                }, 600); // 0.6초 롱프레스
+                    isFired = true; // 타이머 완료 상태 기록
+                    document.querySelectorAll('.verse-inline.bookmarked').forEach(el => el.classList.remove('bookmarked'));
+                    element.classList.add('bookmarked');
+                    localStorage.setItem(`jw_mark_ch_${bookId}`, chNum);
+                    localStorage.setItem(`jw_mark_vs_${bookId}`, vsNum);
+                    
+                    // 지원 기기에서 가벼운 햅틱 반응 (성공 피드백)
+                    if (navigator.vibrate) navigator.vibrate(50);
+                }, 500); // 반응성을 위해 0.6초에서 0.5초로 살짝 단축
             };
             
-            const stop = () => clearTimeout(timer);
-            const drag = () => { isDragging = true; clearTimeout(timer); };
+            const cancel = () => {
+                clearTimeout(timer);
+            };
+
+            const move = (e) => {
+                if (isFired) return; // 이미 시간이 다 되어 북마크가 지정됐으면 무시
+                
+                let moveX = 0;
+                let moveY = 0;
+                
+                if (e.type === 'touchmove') {
+                    moveX = e.touches[0].clientX;
+                    moveY = e.touches[0].clientY;
+                } else if (e.type === 'mousemove') {
+                    moveX = e.clientX;
+                    moveY = e.clientY;
+                }
+                
+                // 손가락이 10픽셀 이상 크게 움직였을 때만 타이머 취소 (미세 떨림 방어)
+                if (Math.abs(moveX - startX) > 10 || Math.abs(moveY - startY) > 10) {
+                    cancel();
+                }
+            };
             
+            // 모바일 브라우저 기본 팝업(복사/공유/검색)이 뜨면서 터치를 끊는 현상 방지
+            element.addEventListener('contextmenu', e => e.preventDefault());
+
+            // 마우스 이벤트 (PC 테스트용)
             element.addEventListener('mousedown', trigger);
-            element.addEventListener('mousemove', drag);
-            element.addEventListener('mouseup', stop);
-            element.addEventListener('mouseleave', stop);
+            element.addEventListener('mousemove', move);
+            element.addEventListener('mouseup', cancel);
+            element.addEventListener('mouseleave', cancel);
             
+            // 터치 이벤트 (모바일 실제 사용 환경)
             element.addEventListener('touchstart', trigger, {passive: true});
-            element.addEventListener('touchmove', drag, {passive: true});
-            element.addEventListener('touchend', stop);
+            element.addEventListener('touchmove', move, {passive: true});
+            element.addEventListener('touchend', cancel);
+            element.addEventListener('touchcancel', cancel);
         }
+
 
         function switchScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
